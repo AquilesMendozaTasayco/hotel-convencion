@@ -3,9 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Playfair_Display, Great_Vibes } from "next/font/google";
+import { Great_Vibes, Playfair_Display } from "next/font/google";
 import { ofertas } from "@/data/ofertas";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion"; // 📦 Importar framer-motion
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -19,13 +19,9 @@ const vibes = Great_Vibes({
 
 const GOLD = "#A67C3D";
 
-export default function Ofertas() {
+export default function OfertasGrid() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(ofertas?.[0]?.slug ?? "");
-
-  const options = useMemo(() => {
-    return ofertas.map((o) => ({ slug: o.slug, label: o.titulo }));
-  }, []);
 
   // Cerrar modal con ESC
   useEffect(() => {
@@ -34,6 +30,10 @@ export default function Ofertas() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const options = useMemo(() => {
+    return ofertas.map((o) => ({ slug: o.slug, label: o.titulo }));
   }, []);
 
   const openModal = (slug) => {
@@ -58,9 +58,10 @@ export default function Ofertas() {
 
   return (
     <>
-      <section id="ofertas" className="bg-white py-20 overflow-hidden">
+      <section className="bg-white pb-20 overflow-hidden">
         <div className="mx-auto max-w-7xl px-6">
           
+          {/* Cabecera con Fade Up */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -76,32 +77,33 @@ export default function Ofertas() {
             </h2>
 
             <p className="mt-4 text-center text-sm sm:text-base text-black/65 max-w-2xl mx-auto">
-              Paquetes especiales diseñados para que disfrutes Trujillo con
-              comodidad, estilo y experiencias memorables.
+              Paquetes especiales diseñados para que disfrutes con comodidad, estilo
+              y experiencias memorables.
             </p>
           </motion.div>
 
-          <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+          {/* Grid con efecto escalonado (Stagger) */}
+          <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-6">
             {ofertas.map((o, index) => (
               <motion.div
                 key={o.id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                className="bg-white border border-black/10 shadow-sm overflow-hidden hover:shadow-md transition duration-500 h-full flex flex-col"
+                transition={{ duration: 0.6, delay: index * 0.15 }} // ⏱️ Efecto cascada
+                className="bg-white border border-black/10 shadow-sm overflow-hidden hover:shadow-md transition duration-500 group"
               >
                 <div className="relative h-56 w-full overflow-hidden">
                   <Image
                     src={o.imagen}
                     alt={o.titulo}
                     fill
-                    className="object-cover transition-transform duration-700 hover:scale-110"
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
                     sizes="(max-width: 1024px) 100vw, 33vw"
                   />
                 </div>
 
-                <div className="p-6 flex flex-col flex-grow">
+                <div className="p-6">
                   <h3 className={`${playfair.className} text-lg text-black`}>
                     {o.titulo}
                   </h3>
@@ -110,25 +112,23 @@ export default function Ofertas() {
                     {o.descripcion}
                   </p>
 
-                  <div className="mt-auto pt-6">
+                  <div className="mt-6 flex items-center justify-between">
                     <Link
                       href={`/ofertas/${o.slug}`}
-                      className="text-xs uppercase tracking-[0.22em] text-black/70 hover:text-[#A67C3D] transition inline-block"
+                      className="text-xs uppercase tracking-[0.22em] text-black/70 hover:text-[#A67C3D] transition"
                     >
-                      Ver ofertas →
+                      Ver oferta →
                     </Link>
-
-                    <button
-                      type="button"
-                      onClick={() => openModal(o.slug)}
-                      className="mt-4 block text-center w-full py-3 text-xs uppercase tracking-[0.28em]
-                                 transition-all duration-500
-                                 border border-black text-black
-                                 hover:bg-[#A67C3D] hover:border-[#A67C3D] hover:text-white"
-                    >
-                      Reservar
-                    </button>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => openModal(o.slug)}
+                    className="mt-6 block text-center w-full py-3 text-xs uppercase tracking-[0.28em] transition-all duration-500
+                               border border-black text-black hover:bg-[#A67C3D] hover:border-[#A67C3D] hover:text-white"
+                  >
+                    Reservar
+                  </button>
                 </div>
               </motion.div>
             ))}
@@ -136,6 +136,7 @@ export default function Ofertas() {
         </div>
       </section>
 
+      {/* MODAL ANIMADO CON ANIMEPRESENCE */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -145,8 +146,10 @@ export default function Ofertas() {
             className="fixed inset-0 z-[80] flex items-center justify-center px-4"
             onMouseDown={onBackdropClick}
           >
+            {/* Backdrop con Blur */}
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
+            {/* Card Modal con rebote elástico */}
             <motion.div 
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -155,10 +158,7 @@ export default function Ofertas() {
               className="relative z-10 w-full max-w-md bg-white shadow-2xl border border-black/10"
             >
               <div className="px-6 pt-6">
-                <p
-                  className={`${vibes.className} text-3xl`}
-                  style={{ color: GOLD }}
-                >
+                <p className={`${vibes.className} text-3xl`} style={{ color: GOLD }}>
                   Reservar
                 </p>
                 <p className="mt-1 text-sm text-black/60">
@@ -168,9 +168,7 @@ export default function Ofertas() {
 
               <form onSubmit={onSubmit} className="px-6 pb-6 pt-6 space-y-5">
                 <div>
-                  <label className={`${playfair.className} text-sm text-black`}>
-                    Nombre
-                  </label>
+                  <label className={`${playfair.className} text-sm text-black`}>Nombre</label>
                   <input
                     type="text"
                     required
@@ -180,9 +178,7 @@ export default function Ofertas() {
                 </div>
 
                 <div>
-                  <label className={`${playfair.className} text-sm text-black`}>
-                    Oferta
-                  </label>
+                  <label className={`${playfair.className} text-sm text-black`}>Oferta</label>
                   <select
                     value={selected}
                     onChange={(e) => setSelected(e.target.value)}
@@ -198,9 +194,7 @@ export default function Ofertas() {
                 </div>
 
                 <div>
-                  <label className={`${playfair.className} text-sm text-black`}>
-                    Teléfono
-                  </label>
+                  <label className={`${playfair.className} text-sm text-black`}>Teléfono</label>
                   <input
                     type="tel"
                     required
@@ -210,9 +204,7 @@ export default function Ofertas() {
                 </div>
 
                 <div>
-                  <label className={`${playfair.className} text-sm text-black`}>
-                    Email
-                  </label>
+                  <label className={`${playfair.className} text-sm text-black`}>Email</label>
                   <input
                     type="email"
                     required
@@ -222,20 +214,12 @@ export default function Ofertas() {
                 </div>
 
                 <label className="flex items-start gap-3 text-sm text-black/70 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    required
-                    className="mt-1 accent-[#A67C3D]"
-                  />
+                  <input type="checkbox" required className="mt-1 accent-[#A67C3D]" />
                   <span>
                     Acepto la{" "}
-                    <Link
-                      href="/privacidad"
-                      className="underline decoration-black/30 hover:decoration-[#A67C3D] hover:text-black transition"
-                    >
+                    <Link href="/privacidad" className="underline decoration-black/30 hover:decoration-[#A67C3D] transition">
                       política de privacidad
-                    </Link>
-                    .
+                    </Link>.
                   </span>
                 </label>
 
@@ -254,7 +238,7 @@ export default function Ofertas() {
                     onClick={closeModal}
                     className="h-11 px-5 text-xs uppercase tracking-[0.28em]
                                border border-black/30 text-black/80
-                               hover:border-[#A67C3D] hover:text-[#A67C3D] transition"
+                               hover:border-[#A67C3D] transition"
                   >
                     Cerrar
                   </button>
@@ -264,9 +248,7 @@ export default function Ofertas() {
               <button
                 type="button"
                 onClick={closeModal}
-                aria-label="Cerrar"
-                className="absolute right-4 top-4 h-9 w-9 grid place-items-center
-                           text-black/60 hover:text-black transition"
+                className="absolute right-4 top-4 h-9 w-9 grid place-items-center text-black/60 hover:text-black transition"
               >
                 ✕
               </button>

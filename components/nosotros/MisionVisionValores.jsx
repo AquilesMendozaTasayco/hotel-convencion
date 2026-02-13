@@ -1,6 +1,9 @@
+"use client"; // ✨ Necesario para Framer Motion
+
 import Image from "next/image";
 import { Playfair_Display, Great_Vibes } from "next/font/google";
-import { Target, Eye, ShieldCheck } from "lucide-react"; // 🏛️ Iconos elegantes
+import { Target, Eye, ShieldCheck } from "lucide-react"; 
+import { motion } from "framer-motion"; // 📦 Importar framer-motion
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -35,8 +38,14 @@ export default function MisionVisionValores() {
 
   return (
     <section className="relative w-full py-24 md:py-32 overflow-hidden bg-neutral-900">
+      
       {/* 🖼️ Fondo con Parallax sutil */}
-      <div className="absolute inset-0">
+      <motion.div 
+        initial={{ scale: 1.15 }}
+        whileInView={{ scale: 1 }}
+        transition={{ duration: 2, ease: "easeOut" }}
+        className="absolute inset-0"
+      >
         <Image
           src="/12.jpeg"
           alt="Hotel Convención Background"
@@ -44,19 +53,30 @@ export default function MisionVisionValores() {
           className="object-cover opacity-60"
           priority
         />
-        {/* Overlay degradado para mejor lectura */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-black/90" />
-      </div>
+      </motion.div>
 
-      {/* ✨ Glow Dorado central */}
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-20 blur-[120px] rounded-full"
+      {/* ✨ Glow Dorado central con pulsación suave */}
+      <motion.div
+        animate={{ 
+          opacity: [0.15, 0.25, 0.15],
+          scale: [1, 1.1, 1]
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] blur-[120px] rounded-full"
         style={{ background: GOLD }}
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
-        {/* 🖋️ Cabecera */}
-        <div className="text-center mb-20">
+        
+        {/* 🖋️ Cabecera Animada */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-20"
+        >
           <span
             className={`${vibes.className} text-4xl md:text-5xl block mb-2`}
             style={{ color: GOLD }}
@@ -68,31 +88,40 @@ export default function MisionVisionValores() {
           >
             Compromiso <span className="italic font-light">&</span> Excelencia
           </h2>
-          <div className="w-24 h-[1px] bg-[#A67C3D] mx-auto mt-8 opacity-50" />
-        </div>
+          <motion.div 
+            initial={{ width: 0, opacity: 0 }}
+            whileInView={{ width: 96, opacity: 0.5 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="h-[1px] bg-[#A67C3D] mx-auto mt-8" 
+          />
+        </motion.div>
 
-        {/* 🗂️ Cards con Glassmorphism refinado */}
+        {/* 🗂️ Cards con Entrada Escalonada */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
           {items.map((item, index) => (
-            <div
+            <motion.div
               key={index}
-              className="group relative p-10 rounded-2xl transition-all duration-500 hover:-translate-y-2"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: index * 0.2 }}
+              className="group relative p-10 rounded-2xl"
             >
-              {/* Fondo de la card con borde degradado */}
-              <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-xl rounded-2xl border border-white/10 group-hover:border-[#A67C3D]/40 transition-colors" />
+              {/* Fondo de la card con glassmorphism */}
+              <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-xl rounded-2xl border border-white/10 group-hover:border-[#A67C3D]/40 transition-all duration-500" />
               
               <div className="relative z-10 flex flex-col items-center text-center">
-                {/* Icono con círculo sutil */}
-                <div 
-                  className="mb-6 p-4 rounded-full border border-white/10 text-white/90 group-hover:scale-110 transition-transform duration-500"
+                {/* Icono animado */}
+                <motion.div 
+                  whileHover={{ rotate: 5, scale: 1.1 }}
+                  className="mb-6 p-4 rounded-full border border-white/10 transition-transform duration-500"
                   style={{ color: GOLD }}
                 >
                   {item.icon}
-                </div>
+                </motion.div>
 
-                <h3
-                  className={`${playfair.className} text-2xl mb-5 tracking-wide text-white`}
-                >
+                <h3 className={`${playfair.className} text-2xl mb-5 tracking-wide text-white`}>
                   {item.title}
                 </h3>
                 
@@ -100,7 +129,7 @@ export default function MisionVisionValores() {
                   {item.content}
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

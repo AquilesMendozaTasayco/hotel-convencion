@@ -1,5 +1,8 @@
+"use client"; // ✨ Necesario para Framer Motion
+
 import Image from "next/image";
 import { Playfair_Display, Great_Vibes } from "next/font/google";
+import { motion } from "framer-motion"; // 📦 Importar framer-motion
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -15,12 +18,18 @@ const GOLD = "#A67C3D";
 
 export default function AboutNosotros() {
   return (
-    <section className="bg-white">
+    <section className="bg-white overflow-hidden">
       <div className="mx-auto max-w-7xl px-6 py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
-          {/* Texto izquierda */}
-          <div className="text-center lg:text-left">
+          {/* Texto izquierda con entrada suave */}
+          <motion.div 
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-center lg:text-left"
+          >
             <p className={`${vibes.className} text-2xl sm:text-3xl text-black tracking-wide`}>
               Bienvenidos a
             </p>
@@ -53,16 +62,30 @@ export default function AboutNosotros() {
               </p>
             </div>
 
-            {/* Línea decorativa elegante */}
-            <div className="mt-8 flex justify-center lg:justify-start">
-              <span className="h-[2px] w-24" style={{ backgroundColor: GOLD }} />
-            </div>
-          </div>
+            {/* Línea decorativa animada */}
+            <motion.div 
+              initial={{ width: 0 }}
+              whileInView={{ width: 96 }} // w-24
+              viewport={{ once: true }}
+              transition={{ duration: 1, delay: 0.5 }}
+              className="mt-8 flex justify-center lg:justify-start"
+            >
+              <span className="h-[2px] w-full" style={{ backgroundColor: GOLD }} />
+            </motion.div>
+          </motion.div>
 
-          {/* Imagen derecha */}
-          <div className="relative w-full h-[420px] sm:h-[520px] flex items-center justify-center">
+          {/* Imagen derecha con entrada desde la derecha */}
+          <motion.div 
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="relative w-full h-[420px] sm:h-[520px] flex items-center justify-center"
+          >
+            {/* Contenedor inclinado (mantiene tu rotación y hover original) */}
             <div className="relative w-[92%] h-full rotate-[2deg] transition-transform duration-700 hover:rotate-0">
-              {/* Líneas decorativas arriba izquierda */}
+              
+              {/* Líneas decorativas */}
               <div
                 className="absolute -top-6 -left-6 w-24 h-24"
                 style={{
@@ -71,7 +94,6 @@ export default function AboutNosotros() {
                 }}
               />
 
-              {/* Líneas decorativas abajo derecha */}
               <div
                 className="absolute -bottom-6 -right-6 w-24 h-24"
                 style={{
@@ -91,7 +113,7 @@ export default function AboutNosotros() {
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </div>

@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion"; // 📦 Importar framer-motion
 import { Great_Vibes, Playfair_Display } from "next/font/google";
 import { MapPin, Phone, Mail, Clock, Send, User, MessageSquare, Smartphone } from "lucide-react";
 
@@ -15,12 +18,18 @@ const GOLD = "#A67C3D";
 
 export default function ContactSection() {
   return (
-    <section id="contacto" className="bg-neutral-50 py-24 md:py-32">
+    <section id="contacto" className="bg-neutral-50 py-24 md:py-32 overflow-hidden">
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
-          {/* 🏛️ INFO DE CONTACTO */}
-          <div className="space-y-10">
+          {/* 🏛️ INFO DE CONTACTO - Entrada desde la izquierda */}
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="space-y-10"
+          >
             <div>
               <span className={`${vibes.className} text-4xl block mb-2`} style={{ color: GOLD }}>
                 Contacto
@@ -35,50 +44,40 @@ export default function ContactSection() {
             </div>
 
             <div className="space-y-8">
-              <div className="flex items-start gap-5 group">
-                <div className="p-3 rounded-full bg-white shadow-sm text-[#A67C3D] group-hover:bg-[#A67C3D] group-hover:text-white transition-colors duration-300">
-                  <MapPin size={20} strokeWidth={1.5} />
-                </div>
-                <div>
-                  <h4 className={`${playfair.className} text-lg text-neutral-900`}>Nuestra Dirección</h4>
-                  <p className="text-neutral-500 text-sm mt-1">Calle las Orquídeas Mz. F Lt. 10 Urb. Las Flores - Víctor Larco Herrera, Trujillo</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-5 group">
-                <div className="p-3 rounded-full bg-white shadow-sm text-[#A67C3D] group-hover:bg-[#A67C3D] group-hover:text-white transition-colors duration-300">
-                  <Phone size={20} strokeWidth={1.5} />
-                </div>
-                <div>
-                  <h4 className={`${playfair.className} text-lg text-neutral-900`}>Teléfonos</h4>
-                  <p className="text-neutral-500 text-sm mt-1">(044) 286691 • 942710631</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-5 group">
-                <div className="p-3 rounded-full bg-white shadow-sm text-[#A67C3D] group-hover:bg-[#A67C3D] group-hover:text-white transition-colors duration-300">
-                  <Mail size={20} strokeWidth={1.5} />
-                </div>
-                <div>
-                  <h4 className={`${playfair.className} text-lg text-neutral-900`}>Correo Electrónico</h4>
-                  <p className="text-neutral-500 text-sm mt-1">reservas@convenciontrujillo.com</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-5 group">
-                <div className="p-3 rounded-full bg-white shadow-sm text-[#A67C3D] group-hover:bg-[#A67C3D] group-hover:text-white transition-colors duration-300">
-                  <Clock size={20} strokeWidth={1.5} />
-                </div>
-                <div>
-                  <h4 className={`${playfair.className} text-lg text-neutral-900`}>Horario</h4>
-                  <p className="text-neutral-500 text-sm mt-1">Abierto las 24 horas (Lunes a Domingo)</p>
-                </div>
-              </div>
+              {[
+                { Icon: MapPin, title: "Nuestra Dirección", content: "Calle las Orquídeas Mz. F Lt. 10 Urb. Las Flores - Víctor Larco Herrera, Trujillo" },
+                { Icon: Phone, title: "Teléfonos", content: "(044) 286691 • 942710631" },
+                { Icon: Mail, title: "Correo Electrónico", content: "reservas@convenciontrujillo.com" },
+                { Icon: Clock, title: "Horario", content: "Abierto las 24 horas (Lunes a Domingo)" }
+              ].map((item, idx) => (
+                <motion.div 
+                  key={idx}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2 + idx * 0.1 }}
+                  className="flex items-start gap-5 group"
+                >
+                  <div className="p-3 rounded-full bg-white shadow-sm text-[#A67C3D] group-hover:bg-[#A67C3D] group-hover:text-white transition-colors duration-300">
+                    <item.Icon size={20} strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <h4 className={`${playfair.className} text-lg text-neutral-900`}>{item.title}</h4>
+                    <p className="text-neutral-500 text-sm mt-1">{item.content}</p>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-          </div>
+          </motion.div>
 
-          {/* ✉️ FORMULARIO EJECUTIVO */}
-          <div className="bg-white p-10 lg:p-12 shadow-2xl shadow-black/[0.03] rounded-2xl border border-neutral-100">
+          {/* ✉️ FORMULARIO EJECUTIVO - Entrada desde la derecha */}
+          <motion.div 
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="bg-white p-10 lg:p-12 shadow-2xl shadow-black/[0.03] rounded-2xl border border-neutral-100"
+          >
             <h3 className={`${playfair.className} text-2xl text-neutral-900 mb-8`}>
               Envíanos tu consulta
             </h3>
@@ -137,24 +136,32 @@ export default function ContactSection() {
                 </div>
               </div>
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 type="submit"
-                className="w-full group relative flex items-center justify-center gap-3 bg-neutral-900 text-white py-4 rounded-lg overflow-hidden transition-all hover:bg-[#A67C3D] active:scale-[0.98]"
+                className="w-full group relative flex items-center justify-center gap-3 bg-neutral-900 text-white py-4 rounded-lg overflow-hidden transition-all hover:bg-[#A67C3D]"
               >
                 <span className="text-xs uppercase tracking-[0.3em] font-medium relative z-10">Enviar Mensaje</span>
                 <Send size={14} className="relative z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-              </button>
+              </motion.button>
             </form>
-          </div>
+          </motion.div>
         </div>
 
-        {/* 🗺️ MAPA CON MARCO ELEGANTE */}
-        <div className="mt-24">
+        {/* 🗺️ MAPA CON REVELADO - Fade up sutil */}
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, delay: 0.3 }}
+          className="mt-24"
+        >
           <div className="bg-white p-1 rounded-2xl shadow-xl border border-neutral-100 overflow-hidden">
              <div className="h-[450px] w-full rounded-xl overflow-hidden grayscale-[0.3] hover:grayscale-0 transition-all duration-700">
                 <iframe
                   title="Mapa Hotel Convención"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.8824151761!2d-79.0345!3d-8.1256!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOMKwMDcnMzIuMiJTIDc5wrAwMicwNC4yIlc!5e0!3m2!1ses!2spe!4v1700000000000" // Reemplazar por tu link real de embed
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.7738928373!2d-79.0346!3d-8.1287!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOMKwMDcnNDMuMyJTIDc5wrAwMicwNC42Ilc!5e0!3m2!1ses!2spe!4v1645000000000" // Reemplaza con tu link de embed real
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
@@ -162,7 +169,7 @@ export default function ContactSection() {
                 />
              </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

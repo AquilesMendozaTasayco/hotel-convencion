@@ -1,5 +1,8 @@
+"use client"; // ✨ Necesario para Framer Motion
+
 import { Playfair_Display, Great_Vibes } from "next/font/google";
-import { MapPin, UserCheck, Coffee, Building2 } from "lucide-react"; // 🏛️ Iconos ejecutivos
+import { MapPin, UserCheck, Coffee, Building2 } from "lucide-react"; 
+import { motion } from "framer-motion"; // 📦 Importar framer-motion
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -38,11 +41,17 @@ const items = [
 
 export default function PorqueElegirnos() {
   return (
-    <section className="bg-neutral-50 py-24 md:py-32">
+    <section className="bg-neutral-50 py-24 md:py-32 overflow-hidden">
       <div className="mx-auto max-w-7xl px-6">
         
-        {/* 🖋️ Título y Subtítulo */}
-        <div className="text-center mb-16">
+        {/* 🖋️ Título y Subtítulo con Fade Up */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="text-center mb-16"
+        >
           <span
             className={`${vibes.className} text-4xl block mb-2`}
             style={{ color: GOLD }}
@@ -58,33 +67,39 @@ export default function PorqueElegirnos() {
             Una experiencia diseñada para viajeros exigentes que buscan comodidad, 
             atención personalizada y una ubicación privilegiada en Trujillo.
           </p>
-        </div>
+        </motion.div>
 
-        {/* 🗂️ Cards Mejoradas */}
+        {/* 🗂️ Cards con Entrada Escalonada */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {items.map((it) => (
-            <div
+          {items.map((it, index) => (
+            <motion.div
               key={it.titulo}
-              className="group relative bg-white p-8 rounded-xl border border-neutral-200 transition-all duration-500 hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-1 overflow-hidden"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.15 }}
+              className="group relative bg-white p-8 rounded-xl border border-neutral-200 transition-all duration-500 hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-2 overflow-hidden"
             >
-              {/* ✨ Línea decorativa animada que crece al hacer hover */}
+              {/* ✨ Línea decorativa animada superior (Mantenida) */}
               <div 
                 className="absolute top-0 left-0 h-1 w-0 group-hover:w-full transition-all duration-700"
                 style={{ backgroundColor: GOLD }}
               />
 
-              {/* 🛡️ Icono con acento dorado */}
-              <div 
+              {/* 🛡️ Icono con micro-animación en hover */}
+              <motion.div 
+                whileHover={{ scale: 1.1 }}
                 className="mb-6 flex items-center justify-center w-12 h-12 rounded-lg bg-neutral-50 group-hover:bg-[#A67C3D]/10 transition-colors"
                 style={{ color: GOLD }}
               >
                 {it.icon}
-              </div>
+              </motion.div>
 
               <h3 className={`${playfair.className} text-xl text-neutral-900 font-medium`}>
                 {it.titulo}
               </h3>
 
+              {/* Pequeña línea que se expande en hover (Mantenida) */}
               <div 
                 className="my-4 h-[1px] w-8 transition-all duration-500 group-hover:w-16" 
                 style={{ backgroundColor: GOLD, opacity: 0.4 }}
@@ -93,7 +108,7 @@ export default function PorqueElegirnos() {
               <p className="text-sm leading-7 text-neutral-600 font-light">
                 {it.texto}
               </p>
-            </div>
+            </motion.div>
           ))}
         </div>
 
