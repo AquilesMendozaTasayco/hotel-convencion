@@ -85,7 +85,6 @@ export default function Navbar() {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    // luego conectas a WhatsApp / API
     closeModal();
   };
 
@@ -102,8 +101,68 @@ export default function Navbar() {
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${bgClass}`}
       >
         <nav className="mx-auto max-w-7xl px-6">
-          <div className="h-24 flex items-center justify-between">
-            {/* LOGO MÁS GRANDE */}
+          {/* ====== MOBILE (solo móvil) ====== */}
+          <div className="lg:hidden py-3">
+            {/* Fila 1: LOGO centrado */}
+            <div className="flex items-center justify-center">
+              <Link href="/" className="inline-flex items-center">
+                <Image
+                  src={logoSrc}
+                  alt="Hotel Convención"
+                  width={220}
+                  height={70}
+                  priority
+                  className="h-12 w-auto transition-all duration-300 hover:scale-105"
+                />
+              </Link>
+            </div>
+
+            {/* Fila 2: acciones (hamburguesa + llamada + reservar) */}
+            <div className="mt-3 flex items-center justify-between">
+              {/* Hamburguesa IZQ */}
+              <button
+                type="button"
+                aria-label="Abrir menú"
+                onClick={() => setOpen((v) => !v)}
+                className={`inline-flex items-center justify-center p-2 transition ${textClass}`}
+              >
+                <HamburgerIcon open={open} />
+              </button>
+
+              {/* ÍCONO LLAMADA (solo móvil) → lleva a /contacto */}
+              <Link
+                href="/contacto"
+                aria-label="Ir a contacto"
+                onClick={() => setOpen(false)}
+                className={`inline-flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-300
+                  ${
+                    scrolled
+                      ? "border-black/30 text-black hover:border-[#A67C3D] hover:text-[#A67C3D]"
+                      : "border-white/60 text-white hover:border-[#A67C3D] hover:text-[#A67C3D]"
+                  }`}
+              >
+                <PhoneIcon />
+              </Link>
+
+              {/* Botón RESERVAR DER */}
+              <button
+                type="button"
+                onClick={openModal}
+                className={`px-5 py-2 text-xs uppercase tracking-[0.25em] border transition-all duration-500
+                  ${
+                    scrolled
+                      ? "border-black text-black hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
+                      : "border-white text-white hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
+                  }`}
+              >
+                Reservar ahora
+              </button>
+            </div>
+          </div>
+
+          {/* ====== DESKTOP (NO SE TOCA) ====== */}
+          <div className="hidden lg:flex h-24 items-center justify-between">
+            {/* LOGO */}
             <Link href="/" className="flex items-center">
               <Image
                 src={logoSrc}
@@ -116,7 +175,7 @@ export default function Navbar() {
             </Link>
 
             {/* DESKTOP MENU */}
-            <div className="hidden lg:flex items-center gap-10">
+            <div className="flex items-center gap-10">
               <ul
                 className={`flex items-center gap-10 text-sm tracking-[0.22em] uppercase ${textClass}`}
               >
@@ -125,40 +184,28 @@ export default function Navbar() {
                     <a href={item.href} className="transition-colors duration-300">
                       {item.label}
                     </a>
-
-                    {/* Hover Dorado Elegante */}
                     <span className="absolute left-0 -bottom-2 h-[2px] w-0 bg-[#A67C3D] transition-all duration-500 group-hover:w-full" />
                   </li>
                 ))}
               </ul>
 
-              {/* BOTÓN RESERVAR (MISMO DISEÑO, ahora abre modal) */}
+              {/* BOTÓN RESERVAR (desktop) */}
               <button
                 type="button"
                 onClick={openModal}
                 className={`px-6 py-3 text-sm uppercase tracking-[0.25em] border transition-all duration-500
-              ${
-                scrolled
-                  ? "border-black text-black hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
-                  : "border-white text-white hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
-              }`}
+                  ${
+                    scrolled
+                      ? "border-black text-black hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
+                      : "border-white text-white hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
+                  }`}
               >
                 Reservar
               </button>
             </div>
-
-            {/* HAMBURGUESA */}
-            <button
-              type="button"
-              aria-label="Abrir menú"
-              onClick={() => setOpen((v) => !v)}
-              className={`lg:hidden inline-flex items-center justify-center p-2 transition ${textClass}`}
-            >
-              <HamburgerIcon open={open} />
-            </button>
           </div>
 
-          {/* MOBILE MENU */}
+          {/* MOBILE MENU (solo móvil) */}
           <div
             className={`lg:hidden overflow-hidden transition-all duration-500 ${
               open ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0"
@@ -180,7 +227,7 @@ export default function Navbar() {
                 </a>
               ))}
 
-              {/* BOTÓN RESERVAR MOBILE (misma estética, abre modal) */}
+              {/* BOTÓN RESERVAR MOBILE */}
               <button
                 type="button"
                 onClick={() => {
@@ -188,11 +235,11 @@ export default function Navbar() {
                   openModal();
                 }}
                 className={`mt-5 inline-block px-6 py-3 border transition-all duration-500
-              ${
-                scrolled
-                  ? "border-black text-black hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
-                  : "border-white text-white hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
-              }`}
+                  ${
+                    scrolled
+                      ? "border-black text-black hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
+                      : "border-white text-white hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
+                  }`}
               >
                 Reservar
               </button>
@@ -201,7 +248,7 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* MODAL (mismo estilo) */}
+      {/* MODAL */}
       {modalOpen && (
         <div
           className="fixed inset-0 z-[90] flex items-center justify-center px-4"
@@ -345,5 +392,27 @@ function HamburgerIcon({ open }) {
         }`}
       />
     </div>
+  );
+}
+
+function PhoneIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M6.5 3.5h3L11 8l-2 2c1.7 3.3 4.4 6 7.7 7.7l2-2 4.5 1.5v3c0 1-0.7 1.8-1.7 2
+           -1.2.2-2.5.3-3.8.1-8.2-1.2-14.7-7.7-15.9-15.9
+           -.2-1.3-.1-2.6.1-3.8.2-1 .9-1.7 2-1.7Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
