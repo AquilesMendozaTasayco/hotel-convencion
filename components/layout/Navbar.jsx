@@ -29,6 +29,9 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
+  // detectar móvil
+  const [isMobile, setIsMobile] = useState(false);
+
   // MODAL
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -53,8 +56,11 @@ export default function Navbar() {
 
   useEffect(() => {
     const onResize = () => {
-      if (window.innerWidth >= 1024) setOpen(false);
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (!mobile) setOpen(false);
     };
+    onResize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -88,12 +94,13 @@ export default function Navbar() {
     closeModal();
   };
 
-  const bgClass = scrolled
-    ? "bg-white/95 backdrop-blur-md shadow-sm"
-    : "bg-transparent";
+  // ✅ MÓVIL: al inicio NO transparente (siempre blanco)
+  const bgClass = scrolled ? "bg-white/95 backdrop-blur-md shadow-sm" : "bg-white/95 lg:bg-transparent";
 
-  const textClass = scrolled ? "text-black" : "text-white";
-  const logoSrc = scrolled ? "/logoblack.png" : "/logowhite.png";
+  // ✅ texto/logo: en móvil al inicio negro; en desktop al inicio blanco
+  const isMobileTop = isMobile && !scrolled;
+  const textClass = scrolled ? "text-black" : isMobileTop ? "text-black" : "text-white";
+  const logoSrc = scrolled ? "/logoblack.png" : isMobileTop ? "/logoblack.png" : "/logowhite.png";
 
   return (
     <>
@@ -129,14 +136,14 @@ export default function Navbar() {
                 <HamburgerIcon open={open} />
               </button>
 
-              {/* ÍCONO LLAMADA (solo móvil) → lleva a /contacto */}
+              {/* ÍCONO LLAMADA (solo móvil) → /contacto */}
               <Link
                 href="/contacto"
                 aria-label="Ir a contacto"
                 onClick={() => setOpen(false)}
                 className={`inline-flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-300
                   ${
-                    scrolled
+                    scrolled || isMobileTop
                       ? "border-black/30 text-black hover:border-[#A67C3D] hover:text-[#A67C3D]"
                       : "border-white/60 text-white hover:border-[#A67C3D] hover:text-[#A67C3D]"
                   }`}
@@ -144,16 +151,12 @@ export default function Navbar() {
                 <PhoneIcon />
               </Link>
 
-              {/* Botón RESERVAR DER */}
+              {/* ✅ Botón RESERVAR AHORA (móvil) dorado */}
               <button
                 type="button"
                 onClick={openModal}
-                className={`px-5 py-2 text-xs uppercase tracking-[0.25em] border transition-all duration-500
-                  ${
-                    scrolled
-                      ? "border-black text-black hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
-                      : "border-white text-white hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
-                  }`}
+                className="px-5 py-2 text-xs uppercase tracking-[0.25em] border border-[#A67C3D]
+                           bg-[#A67C3D] text-white transition-all duration-500 hover:opacity-90"
               >
                 Reservar ahora
               </button>
@@ -213,7 +216,7 @@ export default function Navbar() {
           >
             <div
               className={`pb-6 pt-4 text-center uppercase tracking-[0.22em] ${
-                scrolled ? "text-black" : "text-white"
+                scrolled || isMobileTop ? "text-black" : "text-white"
               }`}
             >
               {NAV_ITEMS.map((item) => (
@@ -236,7 +239,7 @@ export default function Navbar() {
                 }}
                 className={`mt-5 inline-block px-6 py-3 border transition-all duration-500
                   ${
-                    scrolled
+                    scrolled || isMobileTop
                       ? "border-black text-black hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
                       : "border-white text-white hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
                   }`}
@@ -397,13 +400,7 @@ function HamburgerIcon({ open }) {
 
 function PhoneIcon() {
   return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
         d="M6.5 3.5h3L11 8l-2 2c1.7 3.3 4.4 6 7.7 7.7l2-2 4.5 1.5v3c0 1-0.7 1.8-1.7 2
            -1.2.2-2.5.3-3.8.1-8.2-1.2-14.7-7.7-15.9-15.9
