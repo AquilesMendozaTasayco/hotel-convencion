@@ -29,9 +29,6 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
-  // detectar móvil
-  const [isMobile, setIsMobile] = useState(false);
-
   // MODAL
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -56,11 +53,8 @@ export default function Navbar() {
 
   useEffect(() => {
     const onResize = () => {
-      const mobile = window.innerWidth < 1024;
-      setIsMobile(mobile);
-      if (!mobile) setOpen(false);
+      if (window.innerWidth >= 1024) setOpen(false);
     };
-    onResize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -91,42 +85,169 @@ export default function Navbar() {
 
   const onSubmit = (e) => {
     e.preventDefault();
+    // luego conectas a WhatsApp / API
     closeModal();
   };
 
-  // ✅ MÓVIL: al inicio NO transparente (siempre blanco)
-  const bgClass = scrolled ? "bg-white/95 backdrop-blur-md shadow-sm" : "bg-white/95 lg:bg-transparent";
+  // ✅ CAMBIO: en MÓVIL al inicio NO transparente (siempre blanco)
+  const headerBg = scrolled
+    ? "bg-white/95 backdrop-blur-md shadow-sm"
+    : "bg-white/95 lg:bg-transparent";
 
-  // ✅ texto/logo: en móvil al inicio negro; en desktop al inicio blanco
-  const isMobileTop = isMobile && !scrolled;
-  const textClass = scrolled ? "text-black" : isMobileTop ? "text-black" : "text-white";
-  const logoSrc = scrolled ? "/logoblack.png" : isMobileTop ? "/logoblack.png" : "/logowhite.png";
+  // ✅ CAMBIO: en MÓVIL texto negro al inicio (porque fondo blanco)
+  const textClass = scrolled ? "text-black" : "text-black lg:text-white";
+
+  // Desktop mantiene su lógica
+  const logoSrcDesktop = scrolled ? "/logoblack.png" : "/logowhite.png";
+  // ✅ Móvil siempre logo negro (fondo blanco)
+  const logoSrcMobile = "/logoblack.png";
 
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${bgClass}`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${headerBg}`}
       >
         <nav className="mx-auto max-w-7xl px-6">
-          {/* ====== MOBILE (solo móvil) ====== */}
-          <div className="lg:hidden py-3">
-            {/* Fila 1: LOGO centrado */}
-            <div className="flex items-center justify-center">
-              <Link href="/" className="inline-flex items-center">
+          {/* =========================
+              DESKTOP (LG+)
+              - TOP (no scroll): 2 filas (logo arriba, menú abajo con líneas)
+              - SCROLL: 1 fila (logo izq, menú centro, botón der)
+          ========================== */}
+          <div className="hidden lg:block">
+            {!scrolled ? (
+              // ======= ESTADO ARRIBA (TRANSPARENTE) =======
+              <div className="pt-6 pb-4">
+                {/* FILA 1: logo centrado */}
+                <div className="relative flex items-center justify-center">
+                  <Link href="/" className="flex items-center">
+                    <Image
+                      src={logoSrcDesktop}
+                      alt="Hotel Convención"
+                      width={260}
+                      height={86}
+                      priority
+                      className="h-16 w-auto transition-all duration-300 hover:scale-105"
+                    />
+                  </Link>
+
+                  {/* derecha: teléfono (opcional visual como 1ra imagen) */}
+                  <div
+                    className={`absolute right-0 top-1/2 -translate-y-1/2 text-sm ${textClass} opacity-90`}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <span aria-hidden>📞</span>
+                      <span>(51) 215-7000</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* FILA 2: líneas + menú centrado + reservar a la derecha */}
+                <div className="mt-5">
+                  <div className="h-px w-full bg-white/35" />
+
+                  <div className="flex items-center justify-between py-4">
+                    <div className="w-40" /> {/* espaciador izq */}
+
+                    <ul
+                      className={`flex items-center gap-10 text-sm tracking-[0.22em] uppercase ${textClass}`}
+                    >
+                      {NAV_ITEMS.map((item) => (
+                        <li key={item.href} className="relative group">
+                          <a
+                            href={item.href}
+                            className="transition-colors duration-300"
+                          >
+                            {item.label}
+                          </a>
+                          <span className="absolute left-0 -bottom-2 h-[2px] w-0 bg-[#A67C3D] transition-all duration-500 group-hover:w-full" />
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="w-40 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={openModal}
+                        className="px-6 py-3 text-sm uppercase tracking-[0.25em] border transition-all duration-500
+                                 border-white text-white hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
+                      >
+                        Reservar
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="h-px w-full bg-white/35" />
+                </div>
+              </div>
+            ) : (
+              // ======= ESTADO SCROLL (BLANCO / 1 FILA) =======
+              <div className="h-24 flex items-center justify-between">
+                {/* LOGO izquierda */}
+                <Link href="/" className="flex items-center">
+                  <Image
+                    src={logoSrcDesktop}
+                    alt="Hotel Convención"
+                    width={220}
+                    height={70}
+                    priority
+                    className="h-14 w-auto transition-all duration-300 hover:scale-105"
+                  />
+                </Link>
+
+                {/* menú centro */}
+                <ul
+                  className={`flex items-center gap-10 text-sm tracking-[0.22em] uppercase ${textClass}`}
+                >
+                  {NAV_ITEMS.map((item) => (
+                    <li key={item.href} className="relative group">
+                      <a
+                        href={item.href}
+                        className="transition-colors duration-300"
+                      >
+                        {item.label}
+                      </a>
+                      <span className="absolute left-0 -bottom-2 h-[2px] w-0 bg-[#A67C3D] transition-all duration-500 group-hover:w-full" />
+                    </li>
+                  ))}
+                </ul>
+
+                {/* botón derecha */}
+                <button
+                  type="button"
+                  onClick={openModal}
+                  className="px-6 py-3 text-sm uppercase tracking-[0.25em] border transition-all duration-500
+                           border-black text-black hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
+                >
+                  Reservar
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* =========================
+              MOBILE (<= LG)
+              ✅ CAMBIO:
+              - Fondo blanco al inicio (no transparente)
+              - Barra de acciones: hamburguesa + icono llamada (a /contacto) + RESERVAR AHORA dorado
+          ========================== */}
+          <div className="lg:hidden">
+            {/* FILA 1: logo centrado */}
+            <div className="pt-4 flex items-center justify-center">
+              <Link href="/" className="flex items-center justify-center">
                 <Image
-                  src={logoSrc}
+                  src={logoSrcMobile}
                   alt="Hotel Convención"
-                  width={220}
-                  height={70}
+                  width={200}
+                  height={64}
                   priority
-                  className="h-12 w-auto transition-all duration-300 hover:scale-105"
+                  className="h-12 w-auto transition-all duration-300"
                 />
               </Link>
             </div>
 
-            {/* Fila 2: acciones (hamburguesa + llamada + reservar) */}
-            <div className="mt-3 flex items-center justify-between">
-              {/* Hamburguesa IZQ */}
+            {/* FILA 2: acciones */}
+            <div className="mt-3 pb-4 flex items-center justify-between">
+              {/* hamburguesa */}
               <button
                 type="button"
                 aria-label="Abrir menú"
@@ -136,116 +257,61 @@ export default function Navbar() {
                 <HamburgerIcon open={open} />
               </button>
 
-              {/* ÍCONO LLAMADA (solo móvil) → /contacto */}
+              {/* icono llamada -> /contacto */}
               <Link
                 href="/contacto"
                 aria-label="Ir a contacto"
                 onClick={() => setOpen(false)}
-                className={`inline-flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-300
-                  ${
-                    scrolled || isMobileTop
-                      ? "border-black/30 text-black hover:border-[#A67C3D] hover:text-[#A67C3D]"
-                      : "border-white/60 text-white hover:border-[#A67C3D] hover:text-[#A67C3D]"
-                  }`}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/25
+                           text-black transition-all duration-300 hover:border-[#A67C3D] hover:text-[#A67C3D]"
               >
                 <PhoneIcon />
               </Link>
 
-              {/* ✅ Botón RESERVAR AHORA (móvil) dorado */}
+              {/* ✅ Reservar ahora dorado */}
               <button
                 type="button"
                 onClick={openModal}
-                className="px-5 py-2 text-xs uppercase tracking-[0.25em] border border-[#A67C3D]
-                           bg-[#A67C3D] text-white transition-all duration-500 hover:opacity-90"
+                className="px-4 py-2 text-xs uppercase tracking-[0.25em]
+                           bg-[#A67C3D] text-white border border-[#A67C3D]
+                           transition-all duration-500 hover:opacity-90"
               >
                 Reservar ahora
               </button>
             </div>
-          </div>
 
-          {/* ====== DESKTOP (NO SE TOCA) ====== */}
-          <div className="hidden lg:flex h-24 items-center justify-between">
-            {/* LOGO */}
-            <Link href="/" className="flex items-center">
-              <Image
-                src={logoSrc}
-                alt="Hotel Convención"
-                width={220}
-                height={70}
-                priority
-                className="h-14 w-auto transition-all duration-300 hover:scale-105"
-              />
-            </Link>
+            <div className="h-px w-full bg-black/10" />
 
-            {/* DESKTOP MENU */}
-            <div className="flex items-center gap-10">
-              <ul
-                className={`flex items-center gap-10 text-sm tracking-[0.22em] uppercase ${textClass}`}
-              >
-                {NAV_ITEMS.map((item) => (
-                  <li key={item.href} className="relative group">
-                    <a href={item.href} className="transition-colors duration-300">
-                      {item.label}
-                    </a>
-                    <span className="absolute left-0 -bottom-2 h-[2px] w-0 bg-[#A67C3D] transition-all duration-500 group-hover:w-full" />
-                  </li>
-                ))}
-              </ul>
-
-              {/* BOTÓN RESERVAR (desktop) */}
-              <button
-                type="button"
-                onClick={openModal}
-                className={`px-6 py-3 text-sm uppercase tracking-[0.25em] border transition-all duration-500
-                  ${
-                    scrolled
-                      ? "border-black text-black hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
-                      : "border-white text-white hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
-                  }`}
-              >
-                Reservar
-              </button>
-            </div>
-          </div>
-
-          {/* MOBILE MENU (solo móvil) */}
-          <div
-            className={`lg:hidden overflow-hidden transition-all duration-500 ${
-              open ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0"
-            }`}
-          >
+            {/* MOBILE MENU */}
             <div
-              className={`pb-6 pt-4 text-center uppercase tracking-[0.22em] ${
-                scrolled || isMobileTop ? "text-black" : "text-white"
+              className={`overflow-hidden transition-all duration-500 ${
+                open ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0"
               }`}
             >
-              {NAV_ITEMS.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  className="block py-3 transition-all duration-300 hover:text-[#A67C3D]"
-                >
-                  {item.label}
-                </a>
-              ))}
+              <div className="pb-6 pt-4 text-center uppercase tracking-[0.22em] text-black">
+                {NAV_ITEMS.map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className="block py-3 transition-all duration-300 hover:text-[#A67C3D]"
+                  >
+                    {item.label}
+                  </a>
+                ))}
 
-              {/* BOTÓN RESERVAR MOBILE */}
-              <button
-                type="button"
-                onClick={() => {
-                  setOpen(false);
-                  openModal();
-                }}
-                className={`mt-5 inline-block px-6 py-3 border transition-all duration-500
-                  ${
-                    scrolled || isMobileTop
-                      ? "border-black text-black hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
-                      : "border-white text-white hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
-                  }`}
-              >
-                Reservar
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    openModal();
+                  }}
+                  className="mt-5 inline-block px-6 py-3 border transition-all duration-500
+                             border-black text-black hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
+                >
+                  Reservar
+                </button>
+              </div>
             </div>
           </div>
         </nav>
@@ -325,7 +391,11 @@ export default function Navbar() {
               </div>
 
               <label className="flex items-start gap-3 text-sm text-black/70">
-                <input type="checkbox" required className="mt-1 accent-[#A67C3D]" />
+                <input
+                  type="checkbox"
+                  required
+                  className="mt-1 accent-[#A67C3D]"
+                />
                 <span>
                   Acepto la{" "}
                   <Link
