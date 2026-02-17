@@ -34,7 +34,7 @@ export const habitaciones = [
     slug: "king",
     nombre: "Habitación King",
     descripcion:
-      "Habitación con amplia cama tipo King, estratégicamente ubicada entre los pisos 2 al 5.",
+      "Habitación con amplia y comoda cama tipo King, estratégicamente ubicada entre los pisos 2 al 5.",
     camas: "1 cama King",
     pisos: "Pisos 2 al 5",
     imagen: "/habitaciones/doble.jpeg",
