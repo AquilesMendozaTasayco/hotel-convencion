@@ -4,37 +4,48 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Playfair_Display, Great_Vibes } from "next/font/google";
-import { ofertas } from "@/data/ofertas";
 import { motion, AnimatePresence } from "framer-motion";
+import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-});
-
-const vibes = Great_Vibes({
-  subsets: ["latin"],
-  weight: ["400"],
-});
-
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "600"] });
+const vibes = Great_Vibes({ subsets: ["latin"], weight: ["400"] });
 const GOLD = "#A67C3D";
 
 export default function Ofertas() {
+  const [ofertas, setOfertas] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState(ofertas?.[0]?.slug ?? "");
+  const [selected, setSelected] = useState("");
 
-  const options = useMemo(() => {
-    return ofertas.map((o) => ({ slug: o.slug, label: o.titulo }));
+  useEffect(() => {
+    const fetchOfertas = async () => {
+      try {
+        const q = query(
+          collection(db, "ofertas"),
+          where("active", "==", true),
+          orderBy("titulo", "asc")
+        );
+        const snap = await getDocs(q);
+        const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        setOfertas(data);
+        if (data.length > 0) setSelected(data[0].slug);
+      } catch (err) {
+        console.error("Error fetching ofertas:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOfertas();
   }, []);
 
-  // Cerrar modal con ESC
   useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === "Escape") closeModal();
-    };
+    const onKey = (e) => { if (e.key === "Escape") closeModal(); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  const options = useMemo(() => ofertas.map((o) => ({ slug: o.slug, label: o.titulo })), [ofertas]);
 
   const openModal = (slug) => {
     setSelected(slug);
@@ -47,20 +58,14 @@ export default function Ofertas() {
     document.documentElement.style.overflow = "";
   };
 
-  const onBackdropClick = (e) => {
-    if (e.target === e.currentTarget) closeModal();
-  };
-
-  const onSubmit = (e) => {
-    e.preventDefault();
-    closeModal();
-  };
+  const onBackdropClick = (e) => { if (e.target === e.currentTarget) closeModal(); };
+  const onSubmit = (e) => { e.preventDefault(); closeModal(); };
 
   return (
     <>
       <section id="ofertas" className="bg-white py-20 overflow-hidden">
         <div className="mx-auto max-w-7xl px-6">
-          
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -68,86 +73,81 @@ export default function Ofertas() {
             transition={{ duration: 0.8 }}
             className="text-center"
           >
-            <h2
-              className={`${vibes.className} text-3xl sm:text-5xl tracking-[0.05em]`}
-              style={{ color: GOLD }}
-            >
+            <h2 className={`${vibes.className} text-3xl sm:text-5xl tracking-[0.05em]`} style={{ color: GOLD }}>
               Nuestras Ofertas
             </h2>
-
             <p className="mt-4 text-center text-sm sm:text-base text-black/65 max-w-2xl mx-auto">
-              Paquetes especiales diseñados para que disfrutes Trujillo con
-              comodidad, estilo y experiencias memorables.
+              Paquetes especiales diseñados para que disfrutes Trujillo con comodidad, estilo y experiencias memorables.
             </p>
           </motion.div>
 
-          <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-            {ofertas.map((o, index) => (
-              <motion.div
-                key={o.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                className="bg-white border border-black/10 shadow-sm overflow-hidden hover:shadow-md transition duration-500 h-full flex flex-col"
-              >
-                <div className="relative h-56 w-full overflow-hidden">
-                  <Image
-                    src={o.imagen}
-                    alt={o.titulo}
-                    fill
-                    className="object-cover transition-transform duration-700 hover:scale-110"
-                    sizes="(max-width: 1024px) 100vw, 33vw"
-                  />
-                </div>
-
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className={`${playfair.className} text-lg text-black`}>
-                    {o.titulo}
-                  </h3>
-
-                  <p className="mt-3 text-sm leading-6 text-black/65">
-                    {o.descripcion}
-                  </p>
-
-                  <div className="mt-auto pt-6">
-                    <Link
-                      href={`/ofertas/${o.slug}`}
-                      className="text-xs uppercase tracking-[0.22em] text-black/70 hover:text-[#A67C3D] transition inline-block"
-                    >
-                      Ver ofertas →
-                    </Link>
-
-                    <button
-                      type="button"
-                      onClick={() => openModal(o.slug)}
-                      className="mt-4 block text-center w-full py-3 text-xs uppercase tracking-[0.28em]
-                                 transition-all duration-500
-                                 border border-black text-black
-                                 hover:bg-[#A67C3D] hover:border-[#A67C3D] hover:text-white"
-                    >
-                      Reservar
-                    </button>
+          {loading ? (
+            <div className="mt-14 flex justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: GOLD, borderTopColor: "transparent" }} />
+            </div>
+          ) : ofertas.length === 0 ? (
+            <p className={`${playfair.className} mt-14 text-center text-black/40 uppercase tracking-widest text-sm`}>
+              No hay ofertas disponibles por el momento.
+            </p>
+          ) : (
+            <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+              {ofertas.map((o, index) => (
+                <motion.div
+                  key={o.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.2 }}
+                  className="bg-white border border-black/10 shadow-sm overflow-hidden hover:shadow-md transition duration-500 h-full flex flex-col"
+                >
+                  <div className="relative h-56 w-full overflow-hidden">
+                    <Image
+                      src={o.imagen}
+                      alt={o.titulo}
+                      fill
+                      className="object-cover transition-transform duration-700 hover:scale-110"
+                      sizes="(max-width: 1024px) 100vw, 33vw"
+                    />
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+
+                  <div className="p-6 flex flex-col flex-grow">
+                    <h3 className={`${playfair.className} text-lg text-black`}>{o.titulo}</h3>
+                    <p className="mt-3 text-sm leading-6 text-black/65">{o.descripcion}</p>
+
+                    <div className="mt-auto pt-6">
+                      <Link
+                        href={`/ofertas/${o.slug}`}
+                        className="text-xs uppercase tracking-[0.22em] text-black/70 hover:text-[#A67C3D] transition inline-block"
+                      >
+                        Ver ofertas →
+                      </Link>
+
+                      <button
+                        type="button"
+                        onClick={() => openModal(o.slug)}
+                        className="mt-4 block text-center w-full py-3 text-xs uppercase tracking-[0.28em] transition-all duration-500 border border-black text-black hover:bg-[#A67C3D] hover:border-[#A67C3D] hover:text-white"
+                      >
+                        Reservar
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[80] flex items-center justify-center px-4"
             onMouseDown={onBackdropClick}
           >
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -155,119 +155,56 @@ export default function Ofertas() {
               className="relative z-10 w-full max-w-md bg-white shadow-2xl border border-black/10"
             >
               <div className="px-6 pt-6">
-                <p
-                  className={`${vibes.className} text-3xl`}
-                  style={{ color: GOLD }}
-                >
-                  Reservar
-                </p>
-                <p className="mt-1 text-sm text-black/60">
-                  Completa tus datos y te contactaremos.
-                </p>
+                <p className={`${vibes.className} text-3xl`} style={{ color: GOLD }}>Reservar</p>
+                <p className="mt-1 text-sm text-black/60">Completa tus datos y te contactaremos.</p>
               </div>
 
               <form onSubmit={onSubmit} className="px-6 pb-6 pt-6 space-y-5">
                 <div>
-                  <label className={`${playfair.className} text-sm text-black`}>
-                    Nombre
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="mt-2 w-full h-11 px-4 border border-black/20 outline-none
-                               focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition"
-                  />
+                  <label className={`${playfair.className} text-sm text-black`}>Nombre</label>
+                  <input type="text" required className="mt-2 w-full h-11 px-4 border border-black/20 outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition" />
                 </div>
 
                 <div>
-                  <label className={`${playfair.className} text-sm text-black`}>
-                    Oferta
-                  </label>
-                  <select
-                    value={selected}
-                    onChange={(e) => setSelected(e.target.value)}
-                    className="mt-2 w-full h-11 px-4 border border-black/20 bg-white outline-none
-                               focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition"
-                  >
+                  <label className={`${playfair.className} text-sm text-black`}>Oferta</label>
+                  <select value={selected} onChange={(e) => setSelected(e.target.value)} className="mt-2 w-full h-11 px-4 border border-black/20 bg-white outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition">
                     {options.map((opt) => (
-                      <option key={opt.slug} value={opt.slug}>
-                        {opt.label}
-                      </option>
+                      <option key={opt.slug} value={opt.slug}>{opt.label}</option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className={`${playfair.className} text-sm text-black`}>
-                    Teléfono
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    className="mt-2 w-full h-11 px-4 border border-black/20 outline-none
-                               focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition"
-                  />
+                  <label className={`${playfair.className} text-sm text-black`}>Teléfono</label>
+                  <input type="tel" required className="mt-2 w-full h-11 px-4 border border-black/20 outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition" />
                 </div>
 
                 <div>
-                  <label className={`${playfair.className} text-sm text-black`}>
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    className="mt-2 w-full h-11 px-4 border border-black/20 outline-none
-                               focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition"
-                  />
+                  <label className={`${playfair.className} text-sm text-black`}>Email</label>
+                  <input type="email" required className="mt-2 w-full h-11 px-4 border border-black/20 outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition" />
                 </div>
 
                 <label className="flex items-start gap-3 text-sm text-black/70 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    required
-                    className="mt-1 accent-[#A67C3D]"
-                  />
+                  <input type="checkbox" required className="mt-1 accent-[#A67C3D]" />
                   <span>
                     Acepto la{" "}
-                    <Link
-                      href="/privacidad"
-                      className="underline decoration-black/30 hover:decoration-[#A67C3D] hover:text-black transition"
-                    >
+                    <Link href="/privacidad" className="underline decoration-black/30 hover:decoration-[#A67C3D] hover:text-black transition">
                       política de privacidad
-                    </Link>
-                    .
+                    </Link>.
                   </span>
                 </label>
 
                 <div className="pt-2 flex items-center gap-3">
-                  <button
-                    type="submit"
-                    className="flex-1 h-11 text-xs uppercase tracking-[0.28em]
-                               bg-black text-white transition-all duration-500
-                               hover:bg-[#A67C3D]"
-                  >
+                  <button type="submit" className="flex-1 h-11 text-xs uppercase tracking-[0.28em] bg-black text-white transition-all duration-500 hover:bg-[#A67C3D]">
                     Reservar
                   </button>
-
-                  <button
-                    type="button"
-                    onClick={closeModal}
-                    className="h-11 px-5 text-xs uppercase tracking-[0.28em]
-                               border border-black/30 text-black/80
-                               hover:border-[#A67C3D] hover:text-[#A67C3D] transition"
-                  >
+                  <button type="button" onClick={closeModal} className="h-11 px-5 text-xs uppercase tracking-[0.28em] border border-black/30 text-black/80 hover:border-[#A67C3D] hover:text-[#A67C3D] transition">
                     Cerrar
                   </button>
                 </div>
               </form>
 
-              <button
-                type="button"
-                onClick={closeModal}
-                aria-label="Cerrar"
-                className="absolute right-4 top-4 h-9 w-9 grid place-items-center
-                           text-black/60 hover:text-black transition"
-              >
+              <button type="button" onClick={closeModal} aria-label="Cerrar" className="absolute right-4 top-4 h-9 w-9 grid place-items-center text-black/60 hover:text-black transition">
                 ✕
               </button>
             </motion.div>

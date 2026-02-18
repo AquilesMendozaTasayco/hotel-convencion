@@ -1,26 +1,16 @@
-"use client"; // ✨ Necesario para Framer Motion
+"use client";
 
 import { Playfair_Display, Great_Vibes } from "next/font/google";
-import { motion } from "framer-motion"; // 📦 Importar framer-motion
+import { motion } from "framer-motion";
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-});
-
-const vibes = Great_Vibes({
-  subsets: ["latin"],
-  weight: ["400"],
-});
-
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "600"] });
+const vibes = Great_Vibes({ subsets: ["latin"], weight: ["400"] });
 const GOLD = "#A67C3D";
 
 export default function HabitacionesIntro() {
   return (
     <section className="bg-white overflow-hidden">
       <div className="mx-auto max-w-5xl px-6 py-20 text-center">
-        
-        {/* Título principal animado */}
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -31,7 +21,6 @@ export default function HabitacionesIntro() {
           Lujosas Habitaciones en Hotel Convención
         </motion.h2>
 
-        {/* Subtítulo dorado animado con un ligero retraso */}
         <motion.p
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -43,8 +32,7 @@ export default function HabitacionesIntro() {
           Tu refugio en Trujillo, Perú
         </motion.p>
 
-        {/* Descripción con fade-in suave */}
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -57,15 +45,14 @@ export default function HabitacionesIntro() {
           durante toda tu estadía.
         </motion.p>
 
-        {/* Línea decorativa que se expande desde el centro */}
         <div className="mt-10 flex justify-center">
-          <motion.span 
+          <motion.span
             initial={{ width: 0 }}
-            whileInView={{ width: 96 }} // Equivalente a w-24
+            whileInView={{ width: 96 }}
             viewport={{ once: true }}
             transition={{ duration: 1, delay: 0.6, ease: "easeInOut" }}
-            className="h-[2px]" 
-            style={{ backgroundColor: GOLD }} 
+            className="h-[2px]"
+            style={{ backgroundColor: GOLD }}
           />
         </div>
       </div>
