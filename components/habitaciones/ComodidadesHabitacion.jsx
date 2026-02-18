@@ -21,11 +21,10 @@ const comodidades = [
   "Plancha y tabla de planchar",
   "Camas con cubierta tipo almohada",
   "Secadora de cabello",
-  "Calefacción y aire acondicionado individual",
   "Mesa de trabajo",
-  "Periódico diario",
   "Cortinas blackout",
   "Atención de bienvenida",
+  "Variedad de amenities de marcas hoteleras reconocidas",
   "34 habitaciones",
 ];
 
