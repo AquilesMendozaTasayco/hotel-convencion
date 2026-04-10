@@ -161,7 +161,7 @@ export default function ContactSection() {
              <div className="h-[450px] w-full rounded-xl overflow-hidden grayscale-[0.3] hover:grayscale-0 transition-all duration-700">
                 <iframe
                   title="Mapa Hotel Convención"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.7738928373!2d-79.0346!3d-8.1287!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOMKwMDcnNDMuMyJTIDc5wrAwMicwNC42Ilc!5e0!3m2!1ses!2spe!4v1645000000000" // Reemplaza con tu link de embed real
+                  src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d284!2d-79.0445553!3d-8.1290284!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91ad3d12f68a8c57%3A0x24016094264218f6!2sHotel%20Convencion!5e0!3m2!1ses!2spe!4v1645000000000!5m2!1ses!2spe"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
