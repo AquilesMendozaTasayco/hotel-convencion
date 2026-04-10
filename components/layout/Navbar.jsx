@@ -13,6 +13,36 @@ const NAV_ITEMS = [
   { label: "Contacto", href: "contacto" },
 ];
 
+const SOCIAL_LINKS = [
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/HotelConvencion",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+        <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.99 3.66 9.13 8.44 9.88v-6.99H7.9V12h2.54V9.77c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.77l-.44 2.89h-2.33v6.99C18.34 21.13 22 16.99 22 12z" />
+      </svg>
+    ),
+  },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/hotelconvencion/",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.975.975 1.246 2.242 1.308 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.975.975-2.242 1.246-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.975-.975-1.246-2.242-1.308-3.608C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608.975-.975 2.242-1.246 3.608-1.308C8.416 2.175 8.796 2.163 12 2.163zm0-2.163C8.741 0 8.333.014 7.053.072 5.197.157 3.355.673 2.014 2.014.673 3.355.157 5.197.072 7.053.014 8.333 0 8.741 0 12c0 3.259.014 3.667.072 4.947.085 1.856.601 3.698 1.942 5.039 1.341 1.341 3.183 1.857 5.039 1.942C8.333 23.986 8.741 24 12 24s3.667-.014 4.947-.072c1.856-.085 3.698-.601 5.039-1.942 1.341-1.341 1.857-3.183 1.942-5.039.058-1.28.072-1.688.072-4.947 0-3.259-.014-3.667-.072-4.947-.085-1.856-.601-3.698-1.942-5.039C20.645.673 18.803.157 16.947.072 15.667.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
+      </svg>
+    ),
+  },
+  {
+    label: "TikTok",
+    href: "https://www.tiktok.com/@hotel_convencion",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z" />
+      </svg>
+    ),
+  },
+];
+
 const playfair = Playfair_Display({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
@@ -85,21 +115,16 @@ export default function Navbar() {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    // luego conectas a WhatsApp / API
     closeModal();
   };
 
-  // ✅ CAMBIO: en MÓVIL al inicio NO transparente (siempre blanco)
   const headerBg = scrolled
     ? "bg-white/95 backdrop-blur-md shadow-sm"
     : "bg-white/95 lg:bg-transparent";
 
-  // ✅ CAMBIO: en MÓVIL texto negro al inicio (porque fondo blanco)
   const textClass = scrolled ? "text-black" : "text-black lg:text-white";
 
-  // Desktop mantiene su lógica
   const logoSrcDesktop = scrolled ? "/logoblack.png" : "/logowhite.png";
-  // ✅ Móvil siempre logo negro (fondo blanco)
   const logoSrcMobile = "/logoblack.png";
 
   return (
@@ -108,17 +133,34 @@ export default function Navbar() {
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${headerBg}`}
       >
         <nav className="mx-auto max-w-7xl px-6">
+
           {/* =========================
               DESKTOP (LG+)
-              - TOP (no scroll): 2 filas (logo arriba, menú abajo con líneas)
-              - SCROLL: 1 fila (logo izq, menú centro, botón der)
           ========================== */}
           <div className="hidden lg:block">
             {!scrolled ? (
               // ======= ESTADO ARRIBA (TRANSPARENTE) =======
               <div className="pt-6 pb-4">
-                {/* FILA 1: logo centrado */}
+                {/* FILA 1: redes izq | logo centro | espacio der */}
                 <div className="relative flex items-center justify-center">
+
+                  {/* Redes sociales - izquierda */}
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center gap-4">
+                    {SOCIAL_LINKS.map((s) => (
+                      <Link
+                        key={s.label}
+                        href={s.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={s.label}
+                        className="text-white/70 hover:text-[#A67C3D] transition duration-300"
+                      >
+                        {s.icon}
+                      </Link>
+                    ))}
+                  </div>
+
+                  {/* Logo centrado */}
                   <Link href="/" className="flex items-center">
                     <Image
                       src={logoSrcDesktop}
@@ -130,11 +172,7 @@ export default function Navbar() {
                     />
                   </Link>
 
-                  {/* derecha: teléfono (opcional visual como 1ra imagen) */}
-                  <div
-                    className={`absolute right-0 top-1/2 -translate-y-1/2 text-sm ${textClass} opacity-90`}
-                  >
-                  </div>
+                  <div className={`absolute right-0 top-1/2 -translate-y-1/2 text-sm ${textClass} opacity-90`} />
                 </div>
 
                 {/* FILA 2: líneas + menú centrado + reservar a la derecha */}
@@ -142,17 +180,12 @@ export default function Navbar() {
                   <div className="h-px w-full bg-white/35" />
 
                   <div className="flex items-center justify-between py-4">
-                    <div className="w-40" /> {/* espaciador izq */}
+                    <div className="w-40" />
 
-                    <ul
-                      className={`flex items-center gap-10 text-sm tracking-[0.22em] uppercase ${textClass}`}
-                    >
+                    <ul className={`flex items-center gap-10 text-sm tracking-[0.22em] uppercase ${textClass}`}>
                       {NAV_ITEMS.map((item) => (
                         <li key={item.href} className="relative group">
-                          <a
-                            href={item.href}
-                            className="transition-colors duration-300"
-                          >
+                          <a href={item.href} className="transition-colors duration-300">
                             {item.label}
                           </a>
                           <span className="absolute left-0 -bottom-2 h-[2px] w-0 bg-[#A67C3D] transition-all duration-500 group-hover:w-full" />
@@ -191,15 +224,10 @@ export default function Navbar() {
                 </Link>
 
                 {/* menú centro */}
-                <ul
-                  className={`flex items-center gap-10 text-sm tracking-[0.22em] uppercase ${textClass}`}
-                >
+                <ul className={`flex items-center gap-10 text-sm tracking-[0.22em] uppercase ${textClass}`}>
                   {NAV_ITEMS.map((item) => (
                     <li key={item.href} className="relative group">
-                      <a
-                        href={item.href}
-                        className="transition-colors duration-300"
-                      >
+                      <a href={item.href} className="transition-colors duration-300">
                         {item.label}
                       </a>
                       <span className="absolute left-0 -bottom-2 h-[2px] w-0 bg-[#A67C3D] transition-all duration-500 group-hover:w-full" />
@@ -207,24 +235,35 @@ export default function Navbar() {
                   ))}
                 </ul>
 
-                {/* botón derecha */}
-                <button
-                  type="button"
-                  onClick={openModal}
-                  className="px-6 py-3 text-sm uppercase tracking-[0.25em] border transition-all duration-500
-                           border-black text-black hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
-                >
-                  Reservar
-                </button>
+                {/* Redes + botón derecha */}
+                <div className="flex items-center gap-5">
+                  {SOCIAL_LINKS.map((s) => (
+                    <Link
+                      key={s.label}
+                      href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={s.label}
+                      className="text-black/50 hover:text-[#A67C3D] transition duration-300"
+                    >
+                      {s.icon}
+                    </Link>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={openModal}
+                    className="px-6 py-3 text-sm uppercase tracking-[0.25em] border transition-all duration-500
+                             border-black text-black hover:bg-[#A67C3D] hover:text-white hover:border-[#A67C3D]"
+                  >
+                    Reservar
+                  </button>
+                </div>
               </div>
             )}
           </div>
 
           {/* =========================
               MOBILE (<= LG)
-              ✅ CAMBIO:
-              - Fondo blanco al inicio (no transparente)
-              - Barra de acciones: hamburguesa + icono llamada (a /contacto) + RESERVAR AHORA dorado
           ========================== */}
           <div className="lg:hidden">
             {/* FILA 1: logo centrado */}
@@ -264,7 +303,7 @@ export default function Navbar() {
                 <PhoneIcon />
               </Link>
 
-              {/* ✅ Reservar ahora dorado */}
+              {/* Reservar ahora dorado */}
               <button
                 type="button"
                 onClick={openModal}
@@ -281,7 +320,7 @@ export default function Navbar() {
             {/* MOBILE MENU */}
             <div
               className={`overflow-hidden transition-all duration-500 ${
-                open ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0"
+                open ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
               }`}
             >
               <div className="pb-6 pt-4 text-center uppercase tracking-[0.22em] text-black">
@@ -295,6 +334,22 @@ export default function Navbar() {
                     {item.label}
                   </a>
                 ))}
+
+                {/* Redes sociales en menú móvil */}
+                <div className="flex justify-center gap-6 mt-6">
+                  {SOCIAL_LINKS.map((s) => (
+                    <Link
+                      key={s.label}
+                      href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={s.label}
+                      className="text-black/50 hover:text-[#A67C3D] transition duration-300"
+                    >
+                      {s.icon}
+                    </Link>
+                  ))}
+                </div>
 
                 <button
                   type="button"
@@ -478,5 +533,4 @@ function PhoneIcon() {
       />
     </svg>
   );
-
 }

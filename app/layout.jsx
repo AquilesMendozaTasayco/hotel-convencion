@@ -5,6 +5,7 @@ import "./globals.css";
 
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { usePathname } from "next/navigation";
 
 const playfair = Playfair_Display({
@@ -22,6 +23,7 @@ export default function RootLayout({ children }) {
         {!esAdmin && <Navbar />}
         <main className="min-h-[calc(100vh-1px)]">{children}</main>
        {!esAdmin && <Footer />}
+       {!esAdmin && <WhatsAppButton />}
       </body>
     </html>
   );

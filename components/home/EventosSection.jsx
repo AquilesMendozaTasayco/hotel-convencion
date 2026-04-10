@@ -71,13 +71,11 @@ export default function EventosSection() {
           </h2>
         </motion.div>
 
-        {/* Cards */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-10">
-
-          {/* Card Salón Ejecutivo - Entra desde la izquierda */}
+        {/* Card Salón Ejecutivo */}
+        <div className="mt-16 max-w-2xl mx-auto">
           <motion.div 
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-lg flex flex-col justify-between"
@@ -107,52 +105,8 @@ export default function EventosSection() {
               Ver Salón Ejecutivo
             </motion.a>
           </motion.div>
-
-          {/* Card Sala de Conferencias - Entra desde la derecha */}
-          <motion.div 
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-lg flex flex-col justify-between"
-          >
-            <div>
-              <h3
-                className={`${playfair.className} text-2xl mb-4`}
-                style={{ color: GOLD }}
-              >
-                Sala de Conferencias
-              </h3>
-
-              <p className="text-white/85 leading-7 text-sm sm:text-base mb-4">
-                Ya sea que esté organizando una reunión corporativa, una conferencia
-                internacional o un evento especial, nuestro espacio ofrece el ambiente
-                perfecto para destacar.
-              </p>
-
-              <ul className="text-white/80 text-sm space-y-2">
-                <li>• Equipo técnico para eventos</li>
-                <li>• Videoconferencia</li>
-                <li>• Zona de exposición y presentaciones</li>
-                <li>• Equipo audiovisual</li>
-                <li>• Bocaditos personalizados</li>
-                <li>• Decoración personalizada</li>
-                <li>• Mobiliario ejecutivo</li>
-                <li>• Servicios de almuerzo y cena</li>
-              </ul>
-            </div>
-
-            <motion.a
-              whileHover={{ backgroundColor: GOLD, borderColor: GOLD }}
-              href="#sala-conferencias"
-              className="inline-block mt-6 text-center text-xs uppercase tracking-[0.3em]
-                         border border-white px-6 py-3 transition duration-500"
-            >
-              Ver Sala de Conferencias
-            </motion.a>
-          </motion.div>
-
         </div>
+
       </div>
     </section>
   );
