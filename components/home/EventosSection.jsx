@@ -67,7 +67,7 @@ export default function EventosSection() {
           <h2
             className={`${playfair.className} text-center text-3xl sm:text-5xl mt-2 tracking-wide`}
           >
-            Salón Ejecutivo & Sala de Conferencias
+            Salón Ejecutivo
           </h2>
         </motion.div>
 
