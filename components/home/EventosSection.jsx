@@ -113,14 +113,14 @@ export default function EventosSection() {
               </ul>
             </div>
 
-            <motion.a
+            {/* <motion.a
               whileHover={{ backgroundColor: GOLD, borderColor: GOLD }}
               href="#sala-reuniones"
               className="inline-block mt-6 text-center text-xs uppercase tracking-[0.3em]
                          border border-white px-6 py-3 transition duration-500"
             >
               Ver Sala de Reuniones
-            </motion.a>
+            </motion.a> */}
           </motion.div>
         </div>
 
