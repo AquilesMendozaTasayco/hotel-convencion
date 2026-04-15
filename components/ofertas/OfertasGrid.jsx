@@ -3,35 +3,37 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Great_Vibes, Playfair_Display } from "next/font/google";
+import { Playfair_Display, Great_Vibes } from "next/font/google";
 import { motion, AnimatePresence } from "framer-motion";
 import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { Loader2 } from "lucide-react";
+import Swal from "sweetalert2";
 
 const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "600"] });
 const vibes = Great_Vibes({ subsets: ["latin"], weight: ["400"] });
 const GOLD = "#A67C3D";
 
-export default function OfertasGrid() {
+export default function Ofertas() {
   const [ofertas, setOfertas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState("");
 
+  const initialModal = { nombre: "", telefono: "", email: "" };
+  const [modalData, setModalData] = useState(initialModal);
+  const [modalLoading, setModalLoading] = useState(false);
+
   useEffect(() => {
     const fetchOfertas = async () => {
       try {
-        const q = query(
-          collection(db, "ofertas"),
-          where("active", "==", true),
-          orderBy("titulo", "asc")
-        );
+        const q = query(collection(db, "ofertas"), where("active", "==", true), orderBy("titulo", "asc"));
         const snap = await getDocs(q);
         const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
         setOfertas(data);
         if (data.length > 0) setSelected(data[0].slug);
       } catch (err) {
-        console.error("Error fetching ofertas:", err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -49,78 +51,104 @@ export default function OfertasGrid() {
 
   const openModal = (slug) => {
     setSelected(slug);
+    setModalData(initialModal);
     setOpen(true);
     document.documentElement.style.overflow = "hidden";
   };
+
   const closeModal = () => {
     setOpen(false);
     document.documentElement.style.overflow = "";
   };
+
   const onBackdropClick = (e) => { if (e.target === e.currentTarget) closeModal(); };
-  const onSubmit = (e) => { e.preventDefault(); closeModal(); };
+  const handleChange = (e) => setModalData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setModalLoading(true);
+    try {
+      const res = await fetch("/api/reserva", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: modalData.nombre,
+          apellido: "",
+          email: modalData.email,
+          telefono: modalData.telefono,
+          habitacion: options.find((o) => o.slug === selected)?.label || selected,
+          entrada: "", salida: "", adultos: "", ninos: "",
+        }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+
+      closeModal();
+      Swal.fire({
+        icon: "success",
+        title: "¡Reserva enviada!",
+        text: "Nos pondremos en contacto contigo a la brevedad.",
+        confirmButtonText: "Cerrar",
+        confirmButtonColor: "#A67C3D",
+        background: "#fff",
+        color: "#111",
+      });
+    } catch {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Hubo un problema al enviar. Inténtalo nuevamente.",
+        confirmButtonText: "Cerrar",
+        confirmButtonColor: "#A67C3D",
+      });
+    } finally {
+      setModalLoading(false);
+    }
+  };
 
   return (
     <>
-      <section className="bg-white pb-20 overflow-hidden">
+      <section id="ofertas" className="bg-white py-20 overflow-hidden">
         <div className="mx-auto max-w-7xl px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
-            <h2 className={`${vibes.className} text-3xl sm:text-5xl tracking-[0.05em]`} style={{ color: GOLD }}>
-              Nuestras Ofertas
-            </h2>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="text-center">
+            <h2 className={`${vibes.className} text-3xl sm:text-5xl tracking-[0.05em]`} style={{ color: GOLD }}>Nuestras Ofertas</h2>
             <p className="mt-4 text-center text-sm sm:text-base text-black/65 max-w-2xl mx-auto">
-              Paquetes especiales diseñados para que disfrutes con comodidad, estilo y experiencias memorables.
+              Paquetes especiales diseñados para que disfrutes Trujillo con comodidad, estilo y experiencias memorables.
             </p>
           </motion.div>
 
           {loading ? (
             <div className="mt-14 flex justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: GOLD, borderTopColor: "transparent" }} />
+              <div className="h-8 w-8 animate-spin rounded-full border-2" style={{ borderColor: GOLD, borderTopColor: "transparent" }} />
             </div>
           ) : ofertas.length === 0 ? (
-            <p className={`${playfair.className} mt-14 text-center text-black/40 uppercase tracking-widest text-sm`}>
-              No hay ofertas disponibles por el momento.
-            </p>
+            <p className={`${playfair.className} mt-14 text-center text-black/40 uppercase tracking-widest text-sm`}>No hay ofertas disponibles por el momento.</p>
           ) : (
-            <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
               {ofertas.map((o, index) => (
                 <motion.div
                   key={o.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.15 }}
-                  className="bg-white border border-black/10 shadow-sm overflow-hidden hover:shadow-md transition duration-500 group"
+                  initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: index * 0.2 }}
+                  className="bg-white border border-black/10 shadow-sm overflow-hidden hover:shadow-md transition duration-500 h-full flex flex-col"
                 >
                   <div className="relative h-56 w-full overflow-hidden">
-                    <Image
-                      src={o.imagen}
-                      alt={o.titulo}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                      sizes="(max-width: 1024px) 100vw, 33vw"
-                    />
+                    <Image src={o.imagen} alt={o.titulo} fill className="object-cover transition-transform duration-700 hover:scale-110" sizes="(max-width: 1024px) 100vw, 33vw" />
                   </div>
-                  <div className="p-6">
+                  <div className="p-6 flex flex-col flex-grow">
                     <h3 className={`${playfair.className} text-lg text-black`}>{o.titulo}</h3>
                     <p className="mt-3 text-sm leading-6 text-black/65">{o.descripcion}</p>
-                    <div className="mt-6 flex items-center justify-between">
-                      <Link href={`/ofertas/${o.slug}`} className="text-xs uppercase tracking-[0.22em] text-black/70 hover:text-[#A67C3D] transition">
+                    <div className="mt-auto pt-6">
+                      <Link href={`/ofertas/${o.slug}`} className="text-xs uppercase tracking-[0.22em] text-black/70 hover:text-[#A67C3D] transition inline-block">
                         Ver oferta →
                       </Link>
+                      <button
+                        type="button"
+                        onClick={() => openModal(o.slug)}
+                        className="mt-4 block text-center w-full py-3 text-xs uppercase tracking-[0.28em] transition-all duration-500 border border-black text-black hover:bg-[#A67C3D] hover:border-[#A67C3D] hover:text-white"
+                      >
+                        Reservar
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => openModal(o.slug)}
-                      className="mt-6 block text-center w-full py-3 text-xs uppercase tracking-[0.28em] transition-all duration-500 border border-black text-black hover:bg-[#A67C3D] hover:border-[#A67C3D] hover:text-white"
-                    >
-                      Reservar
-                    </button>
                   </div>
                 </motion.div>
               ))}
@@ -138,9 +166,7 @@ export default function OfertasGrid() {
           >
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className="relative z-10 w-full max-w-md bg-white shadow-2xl border border-black/10"
             >
@@ -148,10 +174,11 @@ export default function OfertasGrid() {
                 <p className={`${vibes.className} text-3xl`} style={{ color: GOLD }}>Reservar</p>
                 <p className="mt-1 text-sm text-black/60">Completa tus datos y te contactaremos.</p>
               </div>
-              <form onSubmit={onSubmit} className="px-6 pb-6 pt-6 space-y-5">
+
+              <form onSubmit={handleSubmit} className="px-6 pb-6 pt-6 space-y-5">
                 <div>
                   <label className={`${playfair.className} text-sm text-black`}>Nombre</label>
-                  <input type="text" required className="mt-2 w-full h-11 px-4 border border-black/20 outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition" />
+                  <input type="text" name="nombre" required value={modalData.nombre} onChange={handleChange} className="mt-2 w-full h-11 px-4 border border-black/20 outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition" />
                 </div>
                 <div>
                   <label className={`${playfair.className} text-sm text-black`}>Oferta</label>
@@ -161,21 +188,24 @@ export default function OfertasGrid() {
                 </div>
                 <div>
                   <label className={`${playfair.className} text-sm text-black`}>Teléfono</label>
-                  <input type="tel" required className="mt-2 w-full h-11 px-4 border border-black/20 outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition" />
+                  <input type="tel" name="telefono" required value={modalData.telefono} onChange={handleChange} className="mt-2 w-full h-11 px-4 border border-black/20 outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition" />
                 </div>
                 <div>
                   <label className={`${playfair.className} text-sm text-black`}>Email</label>
-                  <input type="email" required className="mt-2 w-full h-11 px-4 border border-black/20 outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition" />
+                  <input type="email" name="email" required value={modalData.email} onChange={handleChange} className="mt-2 w-full h-11 px-4 border border-black/20 outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition" />
                 </div>
                 <label className="flex items-start gap-3 text-sm text-black/70 cursor-pointer">
                   <input type="checkbox" required className="mt-1 accent-[#A67C3D]" />
-                  <span>Acepto la <Link href="/privacidad" className="underline decoration-black/30 hover:decoration-[#A67C3D] transition">política de privacidad</Link>.</span>
+                  <span>Acepto la <Link href="/privacidad" className="underline decoration-black/30 hover:decoration-[#A67C3D] hover:text-black transition">política de privacidad</Link>.</span>
                 </label>
                 <div className="pt-2 flex items-center gap-3">
-                  <button type="submit" className="flex-1 h-11 text-xs uppercase tracking-[0.28em] bg-black text-white transition-all duration-500 hover:bg-[#A67C3D]">Reservar</button>
-                  <button type="button" onClick={closeModal} className="h-11 px-5 text-xs uppercase tracking-[0.28em] border border-black/30 text-black/80 hover:border-[#A67C3D] transition">Cerrar</button>
+                  <button type="submit" disabled={modalLoading} className="flex-1 h-11 text-xs uppercase tracking-[0.28em] bg-black text-white transition-all duration-500 hover:bg-[#A67C3D] disabled:opacity-70 flex items-center justify-center gap-2">
+                    {modalLoading ? <Loader2 size={15} className="animate-spin" /> : "Reservar"}
+                  </button>
+                  <button type="button" onClick={closeModal} className="h-11 px-5 text-xs uppercase tracking-[0.28em] border border-black/30 text-black/80 hover:border-[#A67C3D] hover:text-[#A67C3D] transition">Cerrar</button>
                 </div>
               </form>
+
               <button type="button" onClick={closeModal} className="absolute right-4 top-4 h-9 w-9 grid place-items-center text-black/60 hover:text-black transition">✕</button>
             </motion.div>
           </motion.div>

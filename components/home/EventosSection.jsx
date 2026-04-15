@@ -1,8 +1,8 @@
-"use client"; // ✨ Necesario para Framer Motion
+"use client";
 
 import Image from "next/image";
 import { Playfair_Display, Great_Vibes } from "next/font/google";
-import { motion } from "framer-motion"; // 📦 Importar framer-motion
+import { motion } from "framer-motion";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -29,7 +29,7 @@ export default function EventosSection() {
       >
         <Image
           src="/12.jpeg"
-          alt="Salón Ejecutivo y Sala de Conferencias"
+          alt="Sala de Reuniones"
           fill
           className="object-cover"
         />
@@ -67,11 +67,11 @@ export default function EventosSection() {
           <h2
             className={`${playfair.className} text-center text-3xl sm:text-5xl mt-2 tracking-wide`}
           >
-            Salón Ejecutivo
+            Sala de Reuniones
           </h2>
         </motion.div>
 
-        {/* Card Salón Ejecutivo */}
+        {/* Card Sala de Reuniones */}
         <div className="mt-16 max-w-2xl mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: 40 }}
@@ -85,24 +85,41 @@ export default function EventosSection() {
                 className={`${playfair.className} text-2xl mb-4`}
                 style={{ color: GOLD }}
               >
-                Salón Ejecutivo
+                Sala de Reuniones
               </h3>
 
               <p className="text-white/85 leading-7 text-sm sm:text-base">
-                Ubicado en el primer piso del Hotel Convención, nuestro Salón Ejecutivo
-                es un exclusivo refugio para disfrutar deliciosos desayunos, tentadores
-                snack y bebidas no alcohólicas ilimitadas. Este espacio también cuenta
-                con un directorio dedicado para sus reuniones de trabajo.
+                Nuestra sala de reuniones está diseñada para inspirar decisiones
+                inteligentes y conversaciones productivas: equipada con elegantes
+                sillones ejecutivos, televisor Smart, aire acondicionado y todo lo
+                necesario para planear, presentar y concretar tus negocios en un
+                ambiente cómodo y profesional.
               </p>
+
+              <p className="text-white/85 leading-7 text-sm sm:text-base mt-3">
+                El espacio ideal donde las ideas se transforman en resultados.
+              </p>
+
+              <ul className="mt-4 space-y-2 text-sm sm:text-base text-white/85">
+                <li className="flex items-center gap-2">
+                  <span style={{ color: GOLD }}>✦</span> Mobiliario ejecutivo
+                </li>
+                <li className="flex items-center gap-2">
+                  <span style={{ color: GOLD }}>✦</span> Equipo para videoconferencias
+                </li>
+                <li className="flex items-center gap-2">
+                  <span style={{ color: GOLD }}>✦</span> Bocaditos previa reserva
+                </li>
+              </ul>
             </div>
 
             <motion.a
               whileHover={{ backgroundColor: GOLD, borderColor: GOLD }}
-              href="#salon-ejecutivo"
+              href="#sala-reuniones"
               className="inline-block mt-6 text-center text-xs uppercase tracking-[0.3em]
                          border border-white px-6 py-3 transition duration-500"
             >
-              Ver Salón Ejecutivo
+              Ver Sala de Reuniones
             </motion.a>
           </motion.div>
         </div>

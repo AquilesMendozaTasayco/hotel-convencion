@@ -7,6 +7,8 @@ import { Playfair_Display, Great_Vibes } from "next/font/google";
 import { motion, AnimatePresence } from "framer-motion";
 import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { Loader2 } from "lucide-react";
+import Swal from "sweetalert2";
 
 const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "500", "600"] });
 const vibes = Great_Vibes({ subsets: ["latin"], weight: ["400"] });
@@ -18,25 +20,25 @@ export default function Habitaciones() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState("");
 
+  const initialModal = { nombre: "", telefono: "", email: "" };
+  const [modalData, setModalData] = useState(initialModal);
+  const [modalLoading, setModalLoading] = useState(false);
+
   useEffect(() => {
-    const fetch = async () => {
+    const fetchHabs = async () => {
       try {
-        const q = query(
-          collection(db, "habitaciones"),
-          where("active", "==", true),
-          orderBy("nombre", "asc")
-        );
+        const q = query(collection(db, "habitaciones"), where("active", "==", true), orderBy("nombre", "asc"));
         const snap = await getDocs(q);
         const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
         setHabitaciones(data);
         if (data.length > 0) setSelected(data[0].slug);
       } catch (err) {
-        console.error("Error fetching habitaciones:", err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetch();
+    fetchHabs();
   }, []);
 
   useEffect(() => {
@@ -49,6 +51,7 @@ export default function Habitaciones() {
 
   const openModal = (slug) => {
     setSelected(slug);
+    setModalData(initialModal);
     setOpen(true);
     document.documentElement.style.overflow = "hidden";
   };
@@ -59,18 +62,55 @@ export default function Habitaciones() {
   };
 
   const onBackdropClick = (e) => { if (e.target === e.currentTarget) closeModal(); };
-  const onSubmit = (e) => { e.preventDefault(); closeModal(); };
+  const handleChange = (e) => setModalData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setModalLoading(true);
+    try {
+      const res = await fetch("/api/reserva", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: modalData.nombre,
+          apellido: "",
+          email: modalData.email,
+          telefono: modalData.telefono,
+          habitacion: roomOptions.find((o) => o.slug === selected)?.label || selected,
+          entrada: "", salida: "", adultos: "", ninos: "",
+        }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+
+      closeModal();
+      Swal.fire({
+        icon: "success",
+        title: "¡Reserva enviada!",
+        text: "Nos pondremos en contacto contigo a la brevedad.",
+        confirmButtonText: "Cerrar",
+        confirmButtonColor: "#A67C3D",
+        background: "#fff",
+        color: "#111",
+      });
+    } catch {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Hubo un problema al enviar. Inténtalo nuevamente.",
+        confirmButtonText: "Cerrar",
+        confirmButtonColor: "#A67C3D",
+      });
+    } finally {
+      setModalLoading(false);
+    }
+  };
 
   return (
     <>
       <section id="habitaciones" className="bg-white py-20">
         <div className="mx-auto max-w-7xl px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
             <h2 className={`${vibes.className} text-center text-3xl sm:text-5xl tracking-[0.05em]`} style={{ color: GOLD }}>
               Nuestras Habitaciones
             </h2>
@@ -81,34 +121,23 @@ export default function Habitaciones() {
 
           {loading ? (
             <div className="mt-14 flex justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: GOLD, borderTopColor: "transparent" }} />
+              <div className="h-8 w-8 animate-spin rounded-full border-2" style={{ borderColor: GOLD, borderTopColor: "transparent" }} />
             </div>
           ) : (
             <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {habitaciones.map((hab, index) => (
                 <motion.div
                   key={hab.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: index * 0.1 }}
                   className="bg-white border border-black/10 shadow-sm overflow-hidden hover:shadow-md transition duration-500"
                 >
                   <div className="relative h-52 w-full overflow-hidden">
-                    <Image
-                      src={hab.imagen}
-                      alt={hab.nombre}
-                      fill
-                      className="object-cover transition-transform duration-700 hover:scale-105"
-                      sizes="(max-width: 1024px) 100vw, 25vw"
-                    />
+                    <Image src={hab.imagen} alt={hab.nombre} fill className="object-cover transition-transform duration-700 hover:scale-105" sizes="(max-width: 1024px) 100vw, 25vw" />
                   </div>
                   <div className="p-6">
-                    <h3 className={`${vibes.className} text-[26px]`} style={{ color: GOLD }}>
-                      {hab.nombre}
-                    </h3>
+                    <h3 className={`${vibes.className} text-[26px]`} style={{ color: GOLD }}>{hab.nombre}</h3>
                     <p className="mt-3 text-sm leading-6 text-black/65">{hab.descripcion}</p>
-                    <div className="mt-6 flex items-center justify-between">
+                    <div className="mt-6">
                       <Link href={`/habitaciones/${hab.slug}`} className="text-xs uppercase tracking-[0.22em] text-black/70 hover:text-[#A67C3D] transition">
                         Ver habitación →
                       </Link>
@@ -137,9 +166,7 @@ export default function Habitaciones() {
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: "spring", duration: 0.5 }}
               className="relative z-10 w-full max-w-md bg-white shadow-2xl border border-black/10"
             >
@@ -147,36 +174,38 @@ export default function Habitaciones() {
                 <p className={`${vibes.className} text-3xl`} style={{ color: GOLD }}>Reservar</p>
                 <p className="mt-1 text-sm text-black/60">Completa tus datos y te contactaremos.</p>
               </div>
-              <form onSubmit={onSubmit} className="px-6 pb-6 pt-6 space-y-5">
+
+              <form onSubmit={handleSubmit} className="px-6 pb-6 pt-6 space-y-5">
                 <div>
                   <label className={`${playfair.className} text-sm text-black`}>Nombre</label>
-                  <input type="text" required className="mt-2 w-full h-11 px-4 border border-black/20 outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition" />
+                  <input type="text" name="nombre" required value={modalData.nombre} onChange={handleChange} className="mt-2 w-full h-11 px-4 border border-black/20 outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition" />
                 </div>
                 <div>
                   <label className={`${playfair.className} text-sm text-black`}>Tipo de habitación</label>
                   <select value={selected} onChange={(e) => setSelected(e.target.value)} className="mt-2 w-full h-11 px-4 border border-black/20 bg-white outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition">
-                    {roomOptions.map((opt) => (
-                      <option key={opt.slug} value={opt.slug}>{opt.label}</option>
-                    ))}
+                    {roomOptions.map((opt) => <option key={opt.slug} value={opt.slug}>{opt.label}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className={`${playfair.className} text-sm text-black`}>Teléfono</label>
-                  <input type="tel" required className="mt-2 w-full h-11 px-4 border border-black/20 outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition" />
+                  <input type="tel" name="telefono" required value={modalData.telefono} onChange={handleChange} className="mt-2 w-full h-11 px-4 border border-black/20 outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition" />
                 </div>
                 <div>
                   <label className={`${playfair.className} text-sm text-black`}>Email</label>
-                  <input type="email" required className="mt-2 w-full h-11 px-4 border border-black/20 outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition" />
+                  <input type="email" name="email" required value={modalData.email} onChange={handleChange} className="mt-2 w-full h-11 px-4 border border-black/20 outline-none focus:border-[#A67C3D] focus:ring-2 focus:ring-[#A67C3D]/20 transition" />
                 </div>
-                <label className="flex items-start gap-3 text-sm text-black/70">
+                <label className="flex items-start gap-3 text-sm text-black/70 cursor-pointer">
                   <input type="checkbox" required className="mt-1 accent-[#A67C3D]" />
                   <span>Acepto la <Link href="/privacidad" className="underline decoration-black/30 hover:decoration-[#A67C3D] hover:text-black transition">política de privacidad</Link>.</span>
                 </label>
                 <div className="pt-2 flex items-center gap-3">
-                  <button type="submit" className="flex-1 h-11 text-xs uppercase tracking-[0.28em] bg-black text-white transition-all duration-500 hover:bg-[#A67C3D]">Reservar</button>
+                  <button type="submit" disabled={modalLoading} className="flex-1 h-11 text-xs uppercase tracking-[0.28em] bg-black text-white transition-all duration-500 hover:bg-[#A67C3D] disabled:opacity-70 flex items-center justify-center gap-2">
+                    {modalLoading ? <Loader2 size={15} className="animate-spin" /> : "Reservar"}
+                  </button>
                   <button type="button" onClick={closeModal} className="h-11 px-5 text-xs uppercase tracking-[0.28em] border border-black/30 text-black/80 hover:border-[#A67C3D] hover:text-[#A67C3D] transition">Cerrar</button>
                 </div>
               </form>
+
               <button type="button" onClick={closeModal} className="absolute right-4 top-4 h-9 w-9 grid place-items-center text-black/60 hover:text-black transition">✕</button>
             </motion.div>
           </div>
